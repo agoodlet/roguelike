@@ -1,5 +1,5 @@
 use specs::prelude::*;
-use super::{WantsToPickupItem, Name, InBackpack, Position, gamelog::GameLog, CombatStats, WantsToUse, Consumable, ProvidesHealing, WantsToDrop};
+use super::{WantsToPickupItem, Name, InBackpack, Position, gamelog::GameLog, CombatStats, WantsToUse, Consumable, ProvidesHealing, WantsToDrop, InflictDamage, SufferDamage, Map};
 
 //TODO refactor inventory system to select items with movement keys then have hotkeys for use/drop/etc
 
@@ -35,17 +35,21 @@ pub struct ItemUseSystem {}
 impl<'a> System<'a> for ItemUseSystem {
     type SystemData = (ReadExpect<'a, Entity>,
                         WriteExpect<'a, GameLog>,
+                        ReadExpect<'a, Map>,
                         Entities<'a>,
                         WriteStorage<'a, WantsToUse>,
                         ReadStorage<'a, Name>,
                         ReadStorage<'a, ProvidesHealing>,
                         WriteStorage<'a, CombatStats>,
-                        ReadStorage<'a, Consumable>);
+                        ReadStorage<'a, Consumable>,
+                        ReadStorage<'a, InflictDamage>,
+                        WriteStorage<'a, SufferDamage>);
 
     fn run(&mut self, data: Self::SystemData){
-        let (player_entity, mut gamelog, entities, mut wants_to_use, names, healing, mut combat_stats, consumables) = data;
+        let (player_entity, mut gamelog, map, entities, mut wants_to_use, names, healing, mut combat_stats, consumables, inflict_damage, mut suffer_damage) = data;
 
         for (entity, useitem, stats) in (&entities, &wants_to_use, &mut combat_stats).join() {
+            let mut used_item = true;
             let item_heals = healing.get(useitem.item);
             match item_heals {
                 None => {}
@@ -63,7 +67,29 @@ impl<'a> System<'a> for ItemUseSystem {
                     }
                 }
             }
+        
+
+        // If it inflicts damage, apply it to the target cell
+        let item_damages = inflict_damage.get(useitem.item);
+        match item_damages {
+            None => {}
+            Some(damage) => {
+                let target_point = useitem.target.unwrap();
+                let idx = map.xy_idx(target_point.x, target_point.y);
+                used_item = false;
+                for mob in map.tile_content[idx].iter() {
+                    SufferDamage::new_damage(&mut suffer_damage, *mob, damage.damage);
+                    if entity == *player_entity {
+                        let mob_name = names.get(*mob).unwrap();
+                        let item_name = names.get(useitem.item).unwrap();
+                        gamelog.entries.push(format!("You use {} on {}, inflicting {} hp.", item_name.name, mob_name.name, damage.damage));
+                    }
+                
+                    used_item = true;
+                }
+            }
         }
+    }
         wants_to_use.clear();
     }
 }

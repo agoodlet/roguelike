@@ -151,6 +151,6 @@ fn magic_missile(ecs: &mut World, x:i32, y:i32) {
     .with(Item{})
     .with(Consumable{})
     .with(Ranged{ range: 6})
-    .with(InflictDamage{ damage: 8})
+    .with(InflictDamage{ damage: 17})
     .build();    
 }
