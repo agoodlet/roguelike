@@ -84,6 +84,7 @@ fn draw_tooltip(ecs: &World, ctx: &mut Rltk) {
     }
 }
 
+// TODO change enums to have "Used" and "Dropped" so that I can consolidate the inventory system
 #[derive(PartialEq, Copy, Clone)]
 pub enum ItemMenuResult {Cancel, NoResponse, Selected}
 
@@ -114,6 +115,7 @@ pub fn show_inventory(gs: &mut State, ctx: &mut Rltk) -> (ItemMenuResult, Option
         j += 1;
     }
 
+    // TODO this would change to have the movement keys for navigation then a drop key and a use key
     match ctx.key { 
         None => (ItemMenuResult::NoResponse, None),
         Some(key) => {
@@ -176,6 +178,7 @@ pub fn drop_item_menu(gs: &mut State, ctx: &mut Rltk) -> (ItemMenuResult, Option
 }
 
 pub fn ranged_target(gs: &mut State, ctx: &mut Rltk, range: i32) -> (ItemMenuResult, Option<Point>) {
+    // render a viewshed for the AOE of spells if aoe is present on the entity
     let player_entity = gs.ecs.fetch::<Entity>();
     let player_pos  = gs.ecs.fetch::<Point>();
     let viewsheds = gs.ecs.read_storage::<Viewshed>();

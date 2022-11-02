@@ -203,6 +203,7 @@ fn main() -> rltk::BError {
     gs.ecs.register::<Consumable>();
     gs.ecs.register::<InflictDamage>();
     gs.ecs.register::<Ranged>();
+    gs.ecs.register::<AreaOfEffect>();
 
     
 

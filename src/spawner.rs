@@ -1,5 +1,7 @@
 use rltk::{RGB, RandomNumberGenerator};
 use specs::prelude::*;
+use crate::AreaOfEffect;
+
 use super::{CombatStats, Player, Renderable, Name, Position, Viewshed, Monster, BlocksTile, Rect, Item, ProvidesHealing, map::MAPWIDTH, Consumable, InflictDamage, Ranged};
 
 const MAX_MONSTERS: i32 = 4;
@@ -113,16 +115,17 @@ fn random_item(ecs: &mut World, x: i32, y: i32) {
     let roll: i32;
     {
         let mut rng = ecs.write_resource::<RandomNumberGenerator>();
-        roll = rng.roll_dice(1, 2);
+        roll = rng.roll_dice(1, 3);
     }
 
     match roll {
         1 => { health_potion(ecs, x, y)}
-        _ => { magic_missile(ecs, x, y)}
+        2 => { magic_missile(ecs, x, y)}
+        _ => { fireball(ecs, x, y)}
     }
 }
 
-fn health_potion(ecs: &mut World, x: i32, y: i32) { 
+pub fn health_potion(ecs: &mut World, x: i32, y: i32) { 
     ecs.create_entity()
     .with(Position {x, y})
     .with(Renderable {
@@ -138,7 +141,7 @@ fn health_potion(ecs: &mut World, x: i32, y: i32) {
     .build();
 }
 
-fn magic_missile(ecs: &mut World, x:i32, y:i32) {
+pub fn magic_missile(ecs: &mut World, x:i32, y:i32) {
     ecs.create_entity()
     .with(Position {x, y})
     .with(Renderable {
@@ -152,5 +155,23 @@ fn magic_missile(ecs: &mut World, x:i32, y:i32) {
     .with(Consumable{})
     .with(Ranged{ range: 6})
     .with(InflictDamage{ damage: 17})
+    .build();    
+}
+
+pub fn fireball(ecs: &mut World, x:i32, y:i32) {
+    ecs.create_entity()
+    .with(Position {x, y})
+    .with(Renderable {
+        glyph: rltk::to_cp437(')'),
+        fg: RGB::named(rltk::ORANGE),
+        bg: RGB::named(rltk::BLACK),
+        render_order: 2
+    })
+    .with(Name {name: "Scroll of Fireball".to_string()})
+    .with(Item{})
+    .with(Consumable{})
+    .with(Ranged{ range: 6})
+    .with(InflictDamage{ damage: 20})
+    .with(AreaOfEffect{radius: 3})
     .build();    
 }

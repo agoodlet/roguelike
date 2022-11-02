@@ -1,6 +1,6 @@
 use rltk::{VirtualKeyCode, Rltk};
 use specs::prelude::*;
-use super::{Position, Player, Viewshed, State, Map, RunState, Point, CombatStats, WantsToMelee, WantsToPickupItem, gamelog::GameLog, Item};
+use super::{Position, Player, Viewshed, State, Map, RunState, Point, CombatStats, WantsToMelee, WantsToPickupItem, gamelog::GameLog, Item, spawner};
 use std::cmp::{min, max};
 
 pub fn try_move_player(delta_x: i32, delta_y: i32, ecs: &mut World) {
@@ -38,6 +38,7 @@ pub fn try_move_player(delta_x: i32, delta_y: i32, ecs: &mut World) {
 }
 
 pub fn player_input(gs: &mut State, ctx: &mut Rltk) -> RunState {
+    let mouse_pos = ctx.mouse_pos();
     match ctx.key {
         None => {return RunState::AwaitingInput}
         Some(key) => match key {
@@ -74,6 +75,11 @@ pub fn player_input(gs: &mut State, ctx: &mut Rltk) -> RunState {
             VirtualKeyCode::I => return RunState::ShowInventory,
 
             VirtualKeyCode::F => return RunState::ShowDropItem,
+
+            //spawnables for testing
+            VirtualKeyCode::Key1 =>  spawner::fireball(&mut gs.ecs, mouse_pos.0, mouse_pos.1),
+            VirtualKeyCode::Key2 =>  spawner::magic_missile(&mut gs.ecs, mouse_pos.0, mouse_pos.1),
+            VirtualKeyCode::Key3 =>  spawner::health_potion(&mut gs.ecs, mouse_pos.0, mouse_pos.1),
 
             _ => { return RunState::AwaitingInput}
         }
