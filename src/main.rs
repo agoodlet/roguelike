@@ -1,6 +1,6 @@
 use inventory_system::{InventoryCollectionSystem, ItemUseSystem, ItemDropSystem};
 use map_indexing_system::MapIndexingSystem;
-use rltk::{GameState, Rltk, RGB, VirtualKeyCode, Point};
+use rltk::{GameState, Rltk, Point};
 use specs::prelude::*;
 
 mod components;
@@ -210,7 +210,7 @@ fn main() -> rltk::BError {
     let map : Map = Map::new_map_rooms_and_corridors();
     let (player_x, player_y) = map.rooms[0].center();
     
-    let mut rng = rltk::RandomNumberGenerator::new();
+    let mut _rng = rltk::RandomNumberGenerator::new();
 
     let player_entity = spawner::player(&mut gs.ecs, player_x, player_y);
 

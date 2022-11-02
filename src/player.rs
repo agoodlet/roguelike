@@ -1,6 +1,6 @@
-use rltk::{VirtualKeyCode, Rltk, console};
+use rltk::{VirtualKeyCode, Rltk};
 use specs::prelude::*;
-use super::{Position, Player, Viewshed, TileType, State, Map, RunState, Point, CombatStats, WantsToMelee, WantsToPickupItem, gamelog::GameLog, Item};
+use super::{Position, Player, Viewshed, State, Map, RunState, Point, CombatStats, WantsToMelee, WantsToPickupItem, gamelog::GameLog, Item};
 use std::cmp::{min, max};
 
 pub fn try_move_player(delta_x: i32, delta_y: i32, ecs: &mut World) {
